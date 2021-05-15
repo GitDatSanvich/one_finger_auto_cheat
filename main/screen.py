@@ -1,6 +1,10 @@
 # 屏幕读取开始
+import math
 import sys
+import time
 
+import pyautogui
+import win32api
 import win32con
 import win32gui
 import win32ui
@@ -28,6 +32,17 @@ def find_window_get_screen(hwnd, x_start, y_start, x_end, y_end):
     bites = bit_map.GetBitmapBits(True)
     #
     image_from_bytes = Image.frombytes("RGB", (x_end - x_start, y_end - y_start), bites, "raw", "BGRX")
+    # x_total = math.ceil(x_end - x_start)
+    # x_unit = math.ceil(x_total / 20)
+    # x_center = math.ceil(x_total / 2)
+    # y_total = math.ceil(y_end - y_start)
+    # y_unit = math.ceil(y_total / 20)
+    # y_center = math.ceil(y_total / 2)
+    # box = (x_center + 1 * x_unit, y_center + 4 * y_unit, x_center + 3 * x_unit, y_center + 4.5 * y_unit)
+    # # box = (x_center - 3 * x_unit, y_center + 4 * y_unit, x_center - 1 * x_unit, y_center + 4.5 * y_unit)
+    # crop = image_from_bytes.crop(box)
+    # crop.show()
+
     return image_from_bytes
 
 
@@ -45,11 +60,41 @@ def start():
     y_start = placement[1]
     x_end = placement[2]
     y_end = placement[3]
-    image_from_bytes = find_window_get_screen(hwnd, x_start, y_start, x_end, y_end)
-    # 解析图像
-    for i in range(256):
-        for j in range(256):
-            r, g, b = image_from_bytes.getpixel((i, j))
-            print(r, g, b)
-    # print(bit_map_info)
-    # pyautogui.rightClick()
+    while True:
+        time.sleep(0.1)
+        image_from_bytes = find_window_get_screen(hwnd, x_start, y_start, x_end, y_end)
+        # 解析
+        # 计算参数设置
+        x_total = math.ceil(x_end - x_start)
+        x_unit = math.ceil(x_total / 20)
+        x_center = math.ceil(x_total / 2)
+        y_total = math.ceil(y_end - y_start)
+        y_unit = math.ceil(y_total / 20)
+        y_center = math.ceil(y_total / 2)
+        # 打击点左侧
+        counter = 0
+        for i in range(x_center - 3 * x_unit, x_center - 1 * x_unit):
+            for j in range(y_center + 4 * y_unit, y_center + math.ceil(4.5 * y_unit)):
+                r, g, b = image_from_bytes.getpixel((i, j))
+                print(r, g, b)
+                if b == 255 and r < 50 and g < 50:
+                    counter = counter + 1
+        if counter > 100:
+            print("左侧来敌人")
+            win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+            win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+            time.sleep(0.3)
+        else:
+            # 逻辑复位
+            counter = 0
+        for i in range(x_center + 1 * x_unit, x_center + 3 * x_unit):
+            for j in range(y_center + 4 * y_unit, y_center + math.ceil(4.5 * y_unit)):
+                r, g, b = image_from_bytes.getpixel((i, j))
+                print(r, g, b)
+                if r > 255 and g < 50 and b < 50:
+                    counter = counter + 1
+        if counter > 100:
+            print("右侧来敌人")
+            win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0)
+            win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0)
+            time.sleep(0.3)
