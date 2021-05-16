@@ -38,8 +38,10 @@ def find_window_get_screen(hwnd, x_start, y_start, x_end, y_end):
     # y_total = math.ceil(y_end - y_start)
     # y_unit = math.ceil(y_total / 20)
     # y_center = math.ceil(y_total / 2)
-    # box = (x_center + 1 * x_unit, y_center + 4 * y_unit, x_center + 3 * x_unit, y_center + 4.5 * y_unit)
-    # # box = (x_center - 3 * x_unit, y_center + 4 * y_unit, x_center - 1 * x_unit, y_center + 4.5 * y_unit)
+    # box = (x_center + 3 * x_unit, y_center + 4 * y_unit, x_center + math.ceil(3.5 * x_unit),
+    #        y_center + math.ceil(4.5 * y_unit))
+    # box = (x_center - math.ceil(3.5 * x_unit), y_center + 4 * y_unit, x_center - 3 * x_unit,
+    #        y_center + math.ceil(4.5 * y_unit))
     # crop = image_from_bytes.crop(box)
     # crop.show()
 
@@ -71,30 +73,42 @@ def start():
         y_total = math.ceil(y_end - y_start)
         y_unit = math.ceil(y_total / 20)
         y_center = math.ceil(y_total / 2)
-        # 打击点左侧
+        # 计数器
         counter = 0
-        for i in range(x_center - 3 * x_unit, x_center - 1 * x_unit):
+        all_counter = 0
+
+        # 打击点左侧
+        for i in range(x_center - math.ceil(3.5 * x_unit), x_center - math.ceil(3.4 * x_unit)):
             for j in range(y_center + 4 * y_unit, y_center + math.ceil(4.5 * y_unit)):
                 r, g, b = image_from_bytes.getpixel((i, j))
-                print(r, g, b)
-                if b == 255 and r < 50 and g < 50:
+                all_counter = all_counter + 1
+                if b >= 200:
                     counter = counter + 1
-        if counter > 100:
+        print(all_counter)
+        print(counter)
+        if counter > all_counter * 0.8:
             print("左侧来敌人")
             win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
             win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-            time.sleep(0.3)
-        else:
-            # 逻辑复位
-            counter = 0
-        for i in range(x_center + 1 * x_unit, x_center + 3 * x_unit):
+            time.sleep(0.1)
+        # 逻辑复位
+        all_counter = 0
+        counter = 0
+
+        # 打击点右侧
+        for i in range(x_center + math.ceil(3.4 * x_unit), x_center + math.ceil(3.5 * x_unit)):
             for j in range(y_center + 4 * y_unit, y_center + math.ceil(4.5 * y_unit)):
                 r, g, b = image_from_bytes.getpixel((i, j))
-                print(r, g, b)
-                if r > 255 and g < 50 and b < 50:
+                all_counter = all_counter + 1
+                if r >= 200:
                     counter = counter + 1
-        if counter > 100:
+        print(all_counter)
+        print(counter)
+        if counter > all_counter * 0.8:
             print("右侧来敌人")
             win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0)
             win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0)
-            time.sleep(0.3)
+            time.sleep(0.1)
+        # 逻辑复位
+        all_counter = 0
+        counter = 0
