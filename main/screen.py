@@ -3,7 +3,6 @@ import math
 import sys
 import time
 
-import pyautogui
 import win32api
 import win32con
 import win32gui
@@ -19,7 +18,7 @@ def find_window_get_screen(hwnd, x_start, y_start, x_end, y_end):
     mfc_dc = win32ui.CreateDCFromHandle(hwnd_dc)
     # mfcDC创建可兼容的DC
     save_dc = mfc_dc.CreateCompatibleDC()
-    # 创建bigmap准备保存图片
+    # 创建bitmap准备保存图片
     bit_map = win32ui.CreateBitmap()
     # 为bitmap开辟空间
     bit_map.CreateCompatibleBitmap(mfc_dc, x_end - x_start, y_end - y_start)
